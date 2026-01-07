@@ -4,7 +4,7 @@ class WizStepModulesChoiceFake extends WizStepModulesChoice
 {
 	public function __construct(WizardController $oWizard, $sCurrentState)
 	{
-
+		$this->oWizard = $oWizard;
 	}
 
 	public function setExtensionMap(iTopExtensionsMap $oMap)

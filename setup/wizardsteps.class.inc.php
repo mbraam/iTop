@@ -1415,9 +1415,6 @@ class WizStepModulesChoice extends WizardStep
 					$sDisplayChoices .= $this->GetSelectedModules($aStepInfo, $aSelectedChoices[$i], $aModules, '', '', $aExtensions);
 				}
 				$sDisplayChoices .= '</ul>';
-				if (class_exists('CreateITILProfilesInstaller')) {
-					$this->oWizard->SetParameter('old_addon', true);
-				}
 
 				[$aExtensionsAdded, $aExtensionsRemoved, $aExtensionsNotUninstallable] = $this->GetAddedAndRemovedExtensions($aExtensions);
 				$this->oWizard->SetParameter('selected_modules', json_encode(array_keys($aModules)));
@@ -1743,7 +1740,7 @@ EOF
 	 *
 	 * @return string A text representation of what will be installed
 	 */
-	protected function GetSelectedModules($aInfo, $aSelectedChoices, &$aModules, $sParentId = '', $sDisplayChoices = '', &$aSelectedExtensions = null)
+	public function GetSelectedModules($aInfo, $aSelectedChoices, &$aModules, $sParentId = '', $sDisplayChoices = '', &$aSelectedExtensions = null)
 	{
 		if ($sParentId == '') {
 			// Check once (before recursing) that the hidden modules are selected
@@ -1756,7 +1753,7 @@ EOF
 				}
 			}
 		}
-		$aOptions = isset($aInfo['options']) ? $aInfo['options'] : [];
+		$aOptions = $aInfo['options'] ?? [];
 		foreach ($aOptions as $index => $aChoice) {
 			$sChoiceId = $sParentId.self::$SEP.$index;
 			$aModuleInfo = [];
@@ -1771,6 +1768,9 @@ EOF
 				(isset($aSelectedChoices[$sChoiceId]) && ($aSelectedChoices[$sChoiceId] == $sChoiceId))) {
 				$sDisplayChoices .= '<li>'.$aChoice['title'].'</li>';
 				if (isset($aChoice['modules'])) {
+					if (count($aChoice['modules']) === 0) {
+						throw new Exception('Setup option does not have any module associated');
+					}
 					foreach ($aChoice['modules'] as $sModuleId) {
 						$bSelected = true;
 						if (isset($aModuleInfo[$sModuleId])) {
@@ -1793,7 +1793,6 @@ EOF
 						}
 					}
 				}
-				$sChoiceType = isset($aChoice['type']) ? $aChoice['type'] : 'wizard_option';
 				if ($aSelectedExtensions !== null) {
 					$aSelectedExtensions[] = $aChoice['extension_code'];
 				}
@@ -1807,7 +1806,7 @@ EOF
 			}
 		}
 
-		$aAlternatives = isset($aInfo['alternatives']) ? $aInfo['alternatives'] : [];
+		$aAlternatives = $aInfo['alternatives'] ?? [];
 		$sChoiceName = null;
 		foreach ($aAlternatives as $index => $aChoice) {
 			$sChoiceId = $sParentId.self::$SEP.$index;

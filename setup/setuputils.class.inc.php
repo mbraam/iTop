@@ -2155,7 +2155,7 @@ class SetupInfo
 	/**
 	 * Called by the setup process to initializes the list of selected modules. Do not call this method
 	 * from an 'auto_select' rule
-	 * @param hash $aModules
+	 * @param array $aModules
 	 * @return void
 	 */
 	public static function SetSelectedModules($aModules)
